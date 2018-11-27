@@ -1,7 +1,7 @@
 package com.lucasdornelasv.rxorientationlistener;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import io.reactivex.disposables.Disposable;
@@ -24,10 +24,15 @@ public class MainActivity extends AppCompatActivity {
         tvOrientation = findViewById(R.id.activity_main_tv_orientation);
 
         RxOrientationListener orientationListener = new RxOrientationListener(this);
+
         disposable = orientationListener
                 .listenRotation()
                 .subscribe(rotation -> {
-                    tvOrientation.setText(Boolean.toString(rotation.isPortrait()));
+                    tvOrientation.setText(new StringBuilder("Orientation: ")
+                            .append(rotation.orientation())
+                            .append("\nPortrait: ")
+                            .append(rotation.isPortrait())
+                            .toString());
                 });
     }
 

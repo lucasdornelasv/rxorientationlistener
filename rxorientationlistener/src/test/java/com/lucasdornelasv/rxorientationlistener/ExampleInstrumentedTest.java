@@ -1,21 +1,19 @@
 package com.lucasdornelasv.rxorientationlistener;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 /**
  * Instrumented test, which will execute on an Android device.
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class ExampleInstrumentedTest {
     //region FIELDS
     RxOrientationListener rxOrientationListener;
@@ -26,8 +24,7 @@ public class ExampleInstrumentedTest {
     //region TEST METHODS
     @Before
     public void setUp() {
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        rxOrientationListener = new RxOrientationListener(appContext);
+        rxOrientationListener = new RxOrientationListener(RuntimeEnvironment.application);
     }
 
     @Test
@@ -43,14 +40,6 @@ public class ExampleInstrumentedTest {
                 .assertNoErrors()
                 .assertComplete()
                 .assertValue(IRotation::isPortrait);
-    }
-
-    @Test
-    public void useAppContext() {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getTargetContext();
-
-        assertEquals("com.lucasdornelasv.rxorientationlistener.test", appContext.getPackageName());
     }
     //endregion
 

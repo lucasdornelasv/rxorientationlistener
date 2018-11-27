@@ -3,6 +3,9 @@ package com.lucasdornelasv.rxorientationlistener;
 import android.content.Context;
 import android.view.OrientationEventListener;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -14,7 +17,7 @@ public class RxOrientationObservable extends Observable<Integer> {
     //endregion
 
     //region CONSTRUCTORS
-    RxOrientationObservable(Context context, int rate) {
+    RxOrientationObservable(Context context, @OrientationRate int rate) {
         this.context = context;
         this.rate = rate;
     }
@@ -31,7 +34,7 @@ public class RxOrientationObservable extends Observable<Integer> {
             if (listener.canDetectOrientation()) {
                 listener.enable();
             } else {
-                throw new Exception("Cannot detect orientation");
+                throw new IOException("Cannot detect orientation");
             }
         } catch (Throwable e) {
             observer.onError(e);
@@ -42,10 +45,10 @@ public class RxOrientationObservable extends Observable<Integer> {
     //endregion
 
     //region CLASSES
-    private static class OrientationListener extends OrientationEventListener implements Disposable {
+    static class OrientationListener extends OrientationEventListener implements Disposable {
         //region FIELDS
         private final Observer<? super Integer> observer;
-        private boolean unsubscribed;
+        private final AtomicBoolean unsubscribed = new AtomicBoolean();
         //endregion
 
         //region CONSTRUCTORS
@@ -60,20 +63,20 @@ public class RxOrientationObservable extends Observable<Integer> {
         //region OVERRIDE METHODS
         @Override
         public void onOrientationChanged(int i) {
-            if (unsubscribed) return;
+            if (unsubscribed.get()) return;
             observer.onNext(i);
         }
 
         @Override
         public void dispose() {
-            if (unsubscribed) return;
-            unsubscribed = true;
+            if (unsubscribed.get()) return;
+            unsubscribed.set(true);
             if (canDetectOrientation()) disable();
         }
 
         @Override
         public boolean isDisposed() {
-            return unsubscribed;
+            return unsubscribed.get();
         }
         //endregion
 

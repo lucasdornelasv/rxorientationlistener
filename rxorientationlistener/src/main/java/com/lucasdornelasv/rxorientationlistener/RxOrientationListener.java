@@ -1,12 +1,14 @@
 package com.lucasdornelasv.rxorientationlistener;
 
 import android.content.Context;
+import android.hardware.SensorManager;
 
 import io.reactivex.Observable;
-import io.reactivex.functions.Function;
 
 public class RxOrientationListener implements IRxOrientationListener {
     //region FIELDS
+    private static final int RATE_DEFAULT = SensorManager.SENSOR_DELAY_NORMAL;
+
     private final Context context;
     //endregion
 
@@ -20,14 +22,30 @@ public class RxOrientationListener implements IRxOrientationListener {
 
     //region OVERRIDE METHODS
     @Override
+    public Observable<Integer> listenOrientation(@OrientationRate int rate) {
+        return listenOrientationInternal(rate);
+    }
+
+    @Override
     public Observable<Integer> listenOrientation() {
-        return new RxOrientationObservable(context, 1);
+        return listenOrientationInternal(RATE_DEFAULT);
+    }
+
+    @Override
+    public Observable<IRotation> listenRotation(@OrientationRate int rate) {
+        return listenOrientationInternal(rate)
+                .map(RotationImpl::new);
     }
 
     @Override
     public Observable<IRotation> listenRotation() {
-        return listenOrientation()
-                .map(RotationImpl::new);
+        return listenRotation(RATE_DEFAULT);
+    }
+    //endregion
+
+    //region PRIVATE METHODS
+    private Observable<Integer> listenOrientationInternal(@OrientationRate int rate) {
+        return new RxOrientationObservable(context, rate);
     }
     //endregion
 
